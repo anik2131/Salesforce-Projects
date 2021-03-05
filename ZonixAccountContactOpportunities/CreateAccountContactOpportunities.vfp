@@ -1,0 +1,67 @@
+<!--
+**********Visualforce Page to Create Account, Multiple Contacts and Multiple Opportunities at one GO**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+-->
+<apex:page Controller = "ZonixAccountContactOpportunity">
+    <apex:form>
+        <apex:pageBlock title="Zonix Account Contact Opportunities">
+            <apex:pageBlockButtons>
+                <apex:commandButton value="Save" action = "{!save}" />
+                <apex:commandButton value="Reset" action = "{!clear}" />
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlock title="Account Section">
+                <apex:pageBlockSection title="Fill out the Details" columns="2">
+                    <apex:inputField value = "{!account.Name}" />
+                    <apex:inputField value = "{!account.AccountNumber}" />
+                    <apex:inputField value = "{!account.Industry}" />
+                    <apex:inputField value = "{!account.Rating}" />
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+            <apex:pageBlock title="Contact Section">
+                <apex:pageblocktable value="{!contactWrappers}" var="conwrp" id="table">
+                    <apex:column headerValue="Select Contact">
+                        <apex:inputCheckbox value="{!conwrp.selected}"/> 
+                    </apex:column>
+                    <apex:column headerValue="Contact First Name"> <apex:inputField value="{!conwrp.con.FirstName}" /> </apex:column>
+                    <apex:column headerValue="Contact Last Name"> <apex:inputField value="{!conwrp.con.LastName}" /> </apex:column>
+                </apex:pageblocktable>
+                <apex:commandButton value="Add Contact" action="{!addContactRow}"/>
+                <apex:commandButton value="Remove Contact" action="{!deleteContactRow}"/>
+            </apex:pageBlock>
+            <apex:pageBlock title="Opportunity Section">
+                <apex:pageblocktable value="{!opportunityWrappers}" var="oppwrp" id="table">
+                    <apex:column headerValue="Select Opportunity">
+                        <apex:inputCheckbox value="{!oppwrp.selected}"/> 
+                    </apex:column>
+                    <apex:column headerValue="Opportunity Name"> <apex:inputField value="{!oppwrp.opp.Name}" /> </apex:column>
+                    <apex:column headerValue="Opportunity Stage"> <apex:inputField value="{!oppwrp.opp.StageName}" /> </apex:column>
+                    <apex:column headerValue="Opportunity Close Date"> <apex:inputField value="{!oppwrp.opp.CloseDate}" /> </apex:column>
+                </apex:pageblocktable>
+                <apex:commandButton value="Add Opportunity" action="{!addOpportunityRow}"/>
+                <apex:commandButton value="Remove Opportunity" action="{!deleteOpportunityRow}"/>
+            </apex:pageBlock>
+        </apex:pageBlock>
+        <br/><br/>
+        <apex:pageBlock title="Account Search">
+            <apex:pageBlockSection title="Search your Accounts" columns="2">
+                <apex:inputText label="Enter Account Name" value = "{!searchkey}"/>
+                <apex:commandButton value = "SEARCH" action = "{!retrievedAccount}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Retrieved Accounts" columns="1">
+                <apex:pageblocktable value="{!retrieveAccount}" var="retrAcc" id="table">
+                    <apex:column headerValue="Account Name"> <apex:outputField value="{!retrAcc.Name}" /> </apex:column>
+                    <apex:column headerValue="Account Industry"> <apex:outputField value="{!retrAcc.Industry}" /> </apex:column>
+                    <apex:column headerValue="View Account">
+                        
+                        <apex:commandlink action = "{!redirect}" value = "VIEW">
+                            <apex:param name="acId" value = "{!retrAcc.Id}" assignTo="{!accountId}"/>
+                        </apex:commandlink>
+                    </apex:column>
+                </apex:pageblocktable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

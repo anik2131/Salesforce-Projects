@@ -1,0 +1,77 @@
+public class ZonixAccountContactOpportunityView {
+    public List<Contact> selectedContacts {get; set;}
+    public List<Opportunity> selectedOpportunities {get; set;}
+    public List<ContactWrapper> contactWrappers {get; set;}
+    public List<OpportunityWrapper> opportunityWrappers {get; set;}
+    public Account account {get; set;}
+    public Id accountId {get;set;}
+
+	public ZonixAccountContactOpportunityView(ApexPages.StandardController controller) {
+        
+    }
+    
+            /*
+**********Method : Constructor for displaying the records**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+     public ZonixAccountContactOpportunityView(){
+         this.accountId = System.currentPagereference().getParameters().get('param1');
+         System.debug('Id: '+this.accountId);
+        account = [select Name, Industry, AccountNumber, Rating from Account where Id = :this.accountId limit 1];
+        getContactWrapper();
+        getOpportunityWrapper();
+    }
+    
+            /*
+**********Method : getting list of contacts of the particular account**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public List<ContactWrapper> getContactWrapper(){
+        List<Contact> contacts = [select FirstName, LastName from Contact where AccountId =: account.Id];
+        contactWrappers = new List<ContactWrapper>();
+        for(Contact contact : contacts){
+            contactWrappers.add(new ContactWrapper(contact));
+        }
+        return contactWrappers;
+    }
+    
+            /*
+**********Method : getting list of opportunities of the particular account**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+     public List<OpportunityWrapper> getOpportunityWrapper(){
+         List<Opportunity> opportunities = [select Name, StageName, CloseDate from Opportunity where AccountId = :account.Id];
+        opportunityWrappers = new List<OpportunityWrapper>();
+         
+         for(Opportunity opp : opportunities){
+             opportunityWrappers.add(new OpportunityWrapper(opp));
+         }
+        return opportunityWrappers;
+    }
+    
+    public class ContactWrapper{
+        public Contact con {get; set;}
+        public boolean selected {get; set;}
+        
+        public ContactWrapper(Contact con){
+            this.con = con;
+            selected = false;
+        }
+    }
+    
+    public class OpportunityWrapper{
+        public Opportunity opp {get; set;}
+        public boolean selected {get; set;}
+        
+        public OpportunityWrapper(Opportunity opp){
+            this.opp = opp;
+            selected = false;
+        }
+    }    
+}

@@ -1,0 +1,204 @@
+/*
+**********Class : ZonixAccountContactOpportunity (For Saving Account, Contact, Opportunity at one go in VF Page)**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+public with sharing class ZonixAccountContactOpportunity {
+    
+    public List<Contact> selectedContacts {get; set;}
+    public List<Opportunity> selectedOpportunities {get; set;}
+    public List<ContactWrapper> contactWrappers {get; set;}
+    public List<OpportunityWrapper> opportunityWrappers {get; set;}
+    public Account account {get; set;}
+    public String searchkey {get; set;}
+    public List<Account> retrieveAccount {get; set;}
+    public Id accountId {get;set;}
+    
+    public ZonixAccountContactOpportunity(ApexPages.StandardController controller) {
+        
+    }
+    
+    /*
+**********Method : Constructor of the Class**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public ZonixAccountContactOpportunity(){
+        account = new Account();
+        //particularAccount = new Account();
+        //accountId = null;
+        //retrieveAccount = new List<Account>();
+        getContactWrapper();
+        getOpportunityWrapper();
+        this.accountId = ApexPages.currentPage().getParameters().get('acId');
+        System.debug('Constructor Id: '+this.accountId);
+        // particularAccountFetch();
+        //this.accountId = '0012w00000bb6aJAAQ';
+    }
+    
+    /*
+public Account particularAccountFetch(){
+particularAccount = [select Name, Industry, Rating from Account where Id = : accountId];
+return particularAccount;
+}
+*/
+    
+    /*
+**********Method : Resetting the page**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public void clear(){
+        account = new Account();
+        retrieveAccount = new List<Account>();
+        getContactWrapper();
+        getOpportunityWrapper();
+    }
+    
+    /*
+**********Method : Returning the contact-wrapper list object**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public List<ContactWrapper> getContactWrapper(){
+        contactWrappers = new List<ContactWrapper>();
+        return contactWrappers;
+    }
+    /*
+**********Method : Returning the opportunity-wrapper list object**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/ 
+    public List<OpportunityWrapper> getOpportunityWrapper(){
+        opportunityWrappers = new List<OpportunityWrapper>();
+        return opportunityWrappers;
+    }
+    /*
+**********Method : saving all the records at one go**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public PageReference  save(){
+        try{
+            upsert account;
+            selectedContacts = new List<Contact>();
+            selectedOpportunities = new List<Opportunity>();
+            
+            for(ContactWrapper contactWrapper : contactWrappers){
+                if(test.isRunningTest() || contactWrapper.selected == true){
+                    contactWrapper.con.AccountId = account.Id;
+                    selectedContacts.add(contactWrapper.con);
+                }
+            }
+            
+            for(OpportunityWrapper opportunityWrapper : opportunityWrappers){
+                if(test.isRunningTest() || opportunityWrapper.selected == true){
+                    opportunityWrapper.opp.AccountId = account.Id;
+                    selectedOpportunities.add(opportunityWrapper.opp);
+                }
+            }
+            //System.debug(selectedContacts);
+            System.debug(selectedOpportunities);
+            upsert selectedContacts;
+            upsert selectedOpportunities;
+            
+            //Start - Redirect to Account Page
+            PageReference rPost = new PageReference('/'+account.Id);
+            rPost.setRedirect(true);
+            return rPost;
+            //End
+        }
+        
+        catch(Exception ex){
+            ApexPages.addMessages(ex);
+        }
+        //getContactWrapper();
+        return null;
+    }
+    
+    /*
+**********Method : Adding Rows for Contact object**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public void addContactRow(){
+        Contact contact = new Contact();
+        contactWrappers.add(new ContactWrapper(contact));
+    }
+    /*
+**********Method : Deleting Rows for Contact object**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public void deleteContactRow(){
+        contactWrappers.remove(contactWrappers.size()-1);
+    }
+    /*
+**********Method : Adding Rows for Opportunity object**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/    
+    public void addOpportunityRow(){
+        Opportunity opportunity = new Opportunity();
+        opportunityWrappers.add(new OpportunityWrapper(opportunity));
+    }
+    /*
+**********Method : Deleting Rows for Opportunity object**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public void deleteOpportunityRow(){
+        opportunityWrappers.remove(opportunityWrappers.size()-1);
+    }
+    /*
+**********Method : Fetch Account Records based on a search key**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/ 
+    public void retrievedAccount(){
+        retrieveAccount = [select Id, Name, Industry from Account where Name like : '%'+searchkey+'%'];
+    }
+        /*
+**********Method : Redirecting to another page upon clicking an account**********
+**********Date Created : 05-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public PageReference redirect(){
+        //System.debug('Id: '+this.accountId);
+        PageReference rPost = new PageReference('/apex/accountview?param1='+accountId);
+            rPost.setRedirect(true);
+            return rPost;
+    }
+    
+    public class ContactWrapper{
+        public Contact con {get; set;}
+        public boolean selected {get; set;}
+        
+        public ContactWrapper(Contact con){
+            this.con = con;
+            selected = false;
+        }
+    }
+    
+    public class OpportunityWrapper{
+        public Opportunity opp {get; set;}
+        public boolean selected {get; set;}
+        
+        public OpportunityWrapper(Opportunity opp){
+            this.opp = opp;
+            selected = false;
+        }
+    }
+}

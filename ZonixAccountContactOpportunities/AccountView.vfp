@@ -1,0 +1,40 @@
+<!--
+**********Visualforce Page to Display Account, it's related Contacts and it's related Opportunities at one GO**********
+**********Date Created : 02-03-2021**********
+**********Date Modified : 05-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+-->
+<apex:page controller = "ZonixAccountContactOpportunityView">
+    <apex:form>
+        <apex:pageBlock title="Zonix Account Contact Opportunities">
+            <apex:pageBlock title="Account Details">
+                <apex:pageBlockSection title="Information" columns="2">
+                    <apex:outputField value = "{!account.Name}" />
+                    <apex:outputField value = "{!account.AccountNumber}" />
+                    <apex:outputField value = "{!account.Industry}" />
+                    <apex:outputField value = "{!account.Rating}" />
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+            <br/><br/><br/><hr/><br/><br/><br/>
+            <apex:pageBlock title="Related Contact Details">
+                <apex:repeat value = "{!contactWrappers}" var = "contact">
+                    <apex:pageBlockSection  title="Information" columns="2">
+                        <apex:outputField value="{!contact.con.FirstName}"/>
+                        <apex:outputField value="{!contact.con.LastName}"/>
+                    </apex:pageBlockSection>
+                </apex:repeat>
+            </apex:pageBlock>
+            <br/><br/><br/><hr/><br/><br/><br/>
+            <apex:pageBlock title="Related Opportunity Details">
+                <apex:repeat value = "{!opportunityWrappers}" var = "opportunity">
+                    <apex:pageBlockSection  title="Information" columns="2">
+                        <apex:outputField value="{!opportunity.opp.Name}"/>
+                        <apex:outputField value="{!opportunity.opp.StageName}"/>
+                        <apex:outputField value="{!opportunity.opp.CloseDate}"/>
+                    </apex:pageBlockSection>
+                </apex:repeat>
+            </apex:pageBlock>
+            
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
