@@ -1,7 +1,6 @@
 /*
 **********Class : ZonixAccountContactOpportunity (For Saving Account, Contact, Opportunity at one go in VF Page)**********
 **********Date Created : 02-03-2021**********
-**********Date Modified : 05-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
 public with sharing class ZonixAccountContactOpportunity {
@@ -27,23 +26,11 @@ public with sharing class ZonixAccountContactOpportunity {
 */
     public ZonixAccountContactOpportunity(){
         account = new Account();
-        //particularAccount = new Account();
-        //accountId = null;
-        //retrieveAccount = new List<Account>();
         getContactWrapper();
         getOpportunityWrapper();
         this.accountId = ApexPages.currentPage().getParameters().get('acId');
         System.debug('Constructor Id: '+this.accountId);
-        // particularAccountFetch();
-        //this.accountId = '0012w00000bb6aJAAQ';
     }
-    
-    /*
-public Account particularAccountFetch(){
-particularAccount = [select Name, Industry, Rating from Account where Id = : accountId];
-return particularAccount;
-}
-*/
     
     /*
 **********Method : Resetting the page**********
@@ -68,6 +55,7 @@ return particularAccount;
         contactWrappers = new List<ContactWrapper>();
         return contactWrappers;
     }
+    
     /*
 **********Method : Returning the opportunity-wrapper list object**********
 **********Date Created : 05-03-2021**********
@@ -78,12 +66,14 @@ return particularAccount;
         opportunityWrappers = new List<OpportunityWrapper>();
         return opportunityWrappers;
     }
+    
     /*
 **********Method : saving all the records at one go**********
 **********Date Created : 02-03-2021**********
 **********Date Modified : 05-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
+    
     public PageReference  save(){
         try{
             upsert account;
@@ -103,7 +93,6 @@ return particularAccount;
                     selectedOpportunities.add(opportunityWrapper.opp);
                 }
             }
-            //System.debug(selectedContacts);
             System.debug(selectedOpportunities);
             upsert selectedContacts;
             upsert selectedOpportunities;
@@ -118,7 +107,6 @@ return particularAccount;
         catch(Exception ex){
             ApexPages.addMessages(ex);
         }
-        //getContactWrapper();
         return null;
     }
     
@@ -135,11 +123,12 @@ return particularAccount;
     /*
 **********Method : Deleting Rows for Contact object**********
 **********Date Created : 02-03-2021**********
-**********Date Modified : 05-03-2021**********
+**********Date Modified : 07-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
     public void deleteContactRow(){
-        contactWrappers.remove(contactWrappers.size()-1);
+        if(contactWrappers.size()>0)
+            contactWrappers.remove(contactWrappers.size()-1);
     }
     /*
 **********Method : Adding Rows for Opportunity object**********
@@ -154,11 +143,12 @@ return particularAccount;
     /*
 **********Method : Deleting Rows for Opportunity object**********
 **********Date Created : 05-03-2021**********
-**********Date Modified : 05-03-2021**********
+**********Date Modified : 07-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
     public void deleteOpportunityRow(){
-        opportunityWrappers.remove(opportunityWrappers.size()-1);
+        if(opportunityWrappers.size()>0)
+        	opportunityWrappers.remove(opportunityWrappers.size()-1);
     }
     /*
 **********Method : Fetch Account Records based on a search key**********
@@ -167,7 +157,8 @@ return particularAccount;
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */ 
     public void retrievedAccount(){
-        retrieveAccount = [select Id, Name, Industry from Account where Name like : '%'+searchkey+'%'];
+        retrieveAccount = [select Id, Name, Industry from Account where Name like : '%'+searchkey+'%' and Id not in (
+        Select AccountId from Case)];
     }
         /*
 **********Method : Redirecting to another page upon clicking an account**********
