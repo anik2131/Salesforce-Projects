@@ -8,7 +8,7 @@
     <apex:form >
         <apex:pageBlock title="Zonix Account Contact Opportunities">
             <apex:pageBlockButtons >
-                <apex:commandButton value="Initiate Resturant" action="{!initiateCase}" />
+                <apex:commandButton value="Initiate Case" action="{!initiateCase}" />
             </apex:pageBlockButtons>
             <apex:pageBlock title="Account Details">
                 
