@@ -1,3 +1,8 @@
+/*
+**********Class : ZonixAccountContactOpportunityView (For Viewing Accounts, Contacts and Opportunities and also initiating cases of selected contacts in VF Page)**********
+**********Date Created : 02-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
 public class ZonixAccountContactOpportunityView {
     public List<Contact> selectedContacts {get; set;}
     public List<Opportunity> selectedOpportunities {get; set;}
@@ -5,33 +10,34 @@ public class ZonixAccountContactOpportunityView {
     public List<OpportunityWrapper> opportunityWrappers {get; set;}
     public Account account {get; set;}
     public Id accountId {get;set;}
-
-	public ZonixAccountContactOpportunityView(ApexPages.StandardController controller) {
+    public List<Case> cases {get;set;}
+    
+    public ZonixAccountContactOpportunityView(ApexPages.StandardController controller) {
         
     }
     
-            /*
+    /*
 **********Method : Constructor for displaying the records**********
 **********Date Created : 05-03-2021**********
 **********Date Modified : 05-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
-     public ZonixAccountContactOpportunityView(){
-         this.accountId = System.currentPagereference().getParameters().get('param1');
-         System.debug('Id: '+this.accountId);
+    public ZonixAccountContactOpportunityView(){
+        this.accountId = System.currentPagereference().getParameters().get('param1');
+        System.debug('Id: '+this.accountId);
         account = [select Name, Industry, AccountNumber, Rating from Account where Id = :this.accountId limit 1];
         getContactWrapper();
         getOpportunityWrapper();
     }
     
-            /*
+    /*
 **********Method : getting list of contacts of the particular account**********
 **********Date Created : 05-03-2021**********
-**********Date Modified : 05-03-2021**********
+**********Date Modified : 07-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
     public List<ContactWrapper> getContactWrapper(){
-        List<Contact> contacts = [select FirstName, LastName from Contact where AccountId =: account.Id];
+        List<Contact> contacts = [select FirstName, LastName from Contact where AccountId =: account.Id limit 1000];
         contactWrappers = new List<ContactWrapper>();
         for(Contact contact : contacts){
             contactWrappers.add(new ContactWrapper(contact));
@@ -39,22 +45,51 @@ public class ZonixAccountContactOpportunityView {
         return contactWrappers;
     }
     
-            /*
+    /*
 **********Method : getting list of opportunities of the particular account**********
 **********Date Created : 05-03-2021**********
-**********Date Modified : 05-03-2021**********
+**********Date Modified : 07-03-2021**********
 **********Created By : Anik Chakraborty (Zonix-tech)**********
 */
-     public List<OpportunityWrapper> getOpportunityWrapper(){
-         List<Opportunity> opportunities = [select Name, StageName, CloseDate from Opportunity where AccountId = :account.Id];
+    public List<OpportunityWrapper> getOpportunityWrapper(){
+        List<Opportunity> opportunities = [select Name, StageName, CloseDate from Opportunity where AccountId = :account.Id limit 1000];
         opportunityWrappers = new List<OpportunityWrapper>();
-         
-         for(Opportunity opp : opportunities){
-             opportunityWrappers.add(new OpportunityWrapper(opp));
-         }
+        
+        for(Opportunity opp : opportunities){
+            opportunityWrappers.add(new OpportunityWrapper(opp));
+        }
         return opportunityWrappers;
     }
     
+    /*
+**********Method : initiating cases of the selected contacts in the account**********
+**********Date Created : 07-03-2021**********
+**********Date Modified : 07-03-2021**********
+**********Created By : Anik Chakraborty (Zonix-tech)**********
+*/
+    public PageReference initiateCase(){
+        selectedContacts = new List<Contact>();
+        for(ContactWrapper contactWrapper : contactWrappers){
+            if(contactWrapper.selected == true){
+                selectedContacts.add(contactWrapper.con);
+            }
+        }
+        cases = new List<Case>();
+        if(selectedContacts.size()>0){
+            for(Contact contact : selectedContacts){
+                cases.add(new Case(Subject = 'Test Case', ContactId = contact.Id, AccountId = account.Id));
+            }
+        }
+        
+        try{
+            system.debug(cases);
+            upsert cases;
+        }
+        catch(Exception ex){
+            System.debug(ex.getMessage());
+        }
+        return null;
+    }
     public class ContactWrapper{
         public Contact con {get; set;}
         public boolean selected {get; set;}
