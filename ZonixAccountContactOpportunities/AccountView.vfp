@@ -25,7 +25,7 @@
                     <apex:pageBlockSection title="Information" columns="2">
                         <apex:outputField value="{!contact.con.FirstName}"/>
                         <apex:outputField value="{!contact.con.LastName}"/>
-                        <apex:inputCheckbox label="Select Contact for Approval" value="{!contact.selected}"/> 
+                        <apex:inputCheckbox label="Select Contact to initiate Case" value="{!contact.selected}"/> 
                     </apex:pageBlockSection>
                 </apex:repeat>
             </apex:pageBlock>
@@ -36,7 +36,7 @@
                         <apex:outputField value="{!opportunity.opp.Name}"/>
                         <apex:outputField value="{!opportunity.opp.StageName}"/>
                         <apex:outputField value="{!opportunity.opp.CloseDate}"/>
-                        <apex:inputCheckbox label="Select Opportunity for Approval" value="{!opportunity.selected}"/> 
+                        <!-- <apex:inputCheckbox label="Select Opportunity for Approval" value="{!opportunity.selected}"/> -->
                     </apex:pageBlockSection>
                 </apex:repeat>
             </apex:pageBlock>
